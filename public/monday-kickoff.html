@@ -1,0 +1,627 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monday Kickoff — Quatt</title>
+<!--
+  MONDAY KICKOFF — weekly all-hands deck (Quatt branded) · v4
+  ============================================================
+  PRESENTED (1-10): cover · consumer funnel · outlook · Chill · B2B (installer channel) ·
+                    backlogs · issues · around the company · product & engineering · the one thing
+  APPENDIX (11-16, read-after): team detail — Sales · Marketing · Ops · Engineering · BT&D
+
+  DATA: pulled from DWH per deliverables/standup-queries.md (the executable source of truth).
+    Funnel = NON-CHILL (Consumer Orders), Chill tracked separately. Installs = DIM_JOB_ALLOCATIONS
+    Installation jobs, COMPLETION_STATUS='Complete' (follow-ups are a separate metric). Product split via
+    PRODUCT_FAMILY (installs) / SELECTED_PRODUCT (deal stages) — bundle deals double-count by ~1-2.
+    Weeks: prev = 18-24 May, last = 25-31 May (4-day, Whit-Monday). Outlook = scheduled jobs ahead.
+  PROCESS (every week, see the one-to-many-comms-review skill): run standup-queries.md +
+    read Slack #daily-targets-check-in (C0AUHJV8726) -> draft -> persona panel -> gate.
+  Read-only build — text editing disabled for hosting. Chart bar sizes are inline (--v); change in code.
+  Sensitive board/bank specifics stay OFF these slides.
+-->
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+:root{
+  --font:'Plus Jakarta Sans',system-ui,sans-serif;
+  --black:#081412; --white:#FFFFFF; --orange:#F76622; --neon:#CCF822; --bluish:#E8EEEE;
+  --green:#1A7A6B; --copper:#86594E; --blue:#39636B; --blue2:#5A979E; --darker:#283836;
+  --grey:#C8C8C8; --grey-dark:#545454; --grey-light:#EDEDED; --green-light:#EEF3E6; --copper-light:#F3EBE1;
+  --c-hyb:#AD7D68; --c-ae:#F76622; --c-bat:#1A7A6B; --c-chl:#5A979E; --c-fu:#6f807d;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{font-family:var(--font);background:#05100e;color:var(--black);display:flex;align-items:center;justify-content:center;overflow:hidden;-webkit-font-smoothing:antialiased}
+.stage{position:relative;width:min(100vw,calc(100vh*16/9));height:min(100vh,calc(100vw*9/16));container-type:size;overflow:hidden;background:#fff;box-shadow:0 0 90px rgba(0,0,0,.55)}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-start;padding:5.5cqh 6.5cqw;opacity:0;visibility:hidden;transform:translateY(1.4cqh);transition:opacity .45s ease,transform .45s ease,visibility .45s;pointer-events:none}
+.slide.is-active{opacity:1;visibility:visible;transform:none;pointer-events:auto}
+.slide.center{justify-content:center}
+.bg-white{background:#fff} .bg-bluish{background:var(--bluish)} .bg-dark{background:var(--black);color:#fff}
+.wm{position:absolute;top:5.5cqh;right:6.5cqw;font-size:1.25cqw;font-weight:600;color:var(--grey);letter-spacing:-.01em}
+.bg-dark .wm{color:#5e716d}
+
+.slide-label{font-size:1.35cqw;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--accent,var(--orange))}
+.slide-h{font-weight:600;font-size:3.7cqw;line-height:1.08;letter-spacing:-.02em;margin-top:.7cqh;max-width:94%}
+.slide-h .hl{color:var(--orange)}
+.kicker{display:inline-block;font-size:1.5cqw;font-weight:700;letter-spacing:.15em;text-transform:uppercase}
+.kicker--neon{color:var(--neon)}
+.sub{font-size:1.35cqw;line-height:1.45;color:var(--grey-dark);margin-top:.8cqh;max-width:92%}
+.sub b{color:var(--black);font-weight:700}
+.src{font-size:1.05cqw;color:#9aa0a0;margin-top:1.6cqh;line-height:1.4}
+.lead{font-size:1.6cqw;line-height:1.5;color:var(--grey-dark);max-width:90%;margin-top:2cqh}
+.lead b{color:var(--black);font-weight:700}
+
+/* cover + close */
+.slide--cover{justify-content:space-between;padding:7cqh 6.5cqw}
+.cover-top{display:flex;justify-content:space-between;align-items:center}
+.brand{font-weight:700;font-size:2.3cqw;letter-spacing:-.02em} .brand i{color:var(--neon);font-style:normal}
+.deck-tag{font-size:1.5cqw;color:var(--grey);font-weight:500}
+.cover-mid{display:flex;flex-direction:column;gap:1.8cqh;align-items:flex-start}
+.deck-title{font-weight:600;font-size:7cqw;line-height:1.02;letter-spacing:-.03em}
+.deck-date{font-size:2.2cqw;color:var(--grey);font-weight:500}
+.foot-note{font-size:1.65cqw;color:var(--grey);line-height:1.5;max-width:86%}
+.foot-note b{color:#fff;font-weight:700}
+.statement{font-weight:600;font-size:4.9cqw;line-height:1.14;letter-spacing:-.02em;max-width:95%}
+.statement .hl-neon{color:var(--neon)}
+
+/* legend */
+.legend{display:flex;gap:1.8cqw;margin-top:1.8cqh;margin-bottom:.4cqh;flex-wrap:wrap}
+.legend span{display:inline-flex;align-items:center;gap:.5cqw;font-size:1.3cqw;font-weight:600;color:var(--grey-dark)}
+.legend i{width:1.2cqw;height:1.2cqw;border-radius:3px;flex:none}
+
+/* stacked vertical bars (funnel + outlook) */
+.vbars{display:flex;align-items:flex-end;gap:1cqw;height:26cqh;padding-top:4.2cqh;border-bottom:2px solid var(--grey-light);position:relative}
+.vgrp{flex:1;display:flex;align-items:flex-end;justify-content:center;gap:.4cqw;height:100%}
+.sbar{width:2.2cqw;display:flex;flex-direction:column-reverse;position:relative}
+.vbars.multi .sbar{width:1.05cqw}
+.seg{width:100%;height:calc(var(--v) * var(--u,0.06cqh))}
+.seg.h{background:var(--c-hyb)} .seg.a{background:var(--c-ae)} .seg.b{background:var(--c-bat)} .seg.fu{background:var(--c-fu)}
+.sbar.past .seg{opacity:.5}
+.sbar .bv{position:absolute;top:-2.2cqh;left:50%;transform:translateX(-50%);font-size:1.0cqw;font-weight:700;white-space:nowrap;color:var(--black);text-align:center}
+.sbar .bv.bv2{top:-3.5cqh}
+.sbar .bv small{display:block;font-size:.76cqw;font-weight:600;color:var(--grey-dark);line-height:1.05}
+.xrow{display:flex;gap:1cqw;margin-top:1cqh}
+.xcell{flex:1;text-align:center;font-size:1.2cqw;font-weight:600;color:var(--black);line-height:1.2}
+.xcell small{display:block;font-size:.95cqw;font-weight:500;color:var(--grey-dark)}
+.refline{position:absolute;left:0;right:0;border-top:1.5px dashed var(--grey);pointer-events:none}
+.refline span{position:absolute;right:0;top:-1.7cqh;font-size:.95cqw;font-weight:600;color:var(--grey-dark);background:#fff;padding-left:.5cqw}
+.callouts{display:flex;gap:2.6cqw;margin-top:1.8cqh}
+.callout b{font-size:2.4cqw;font-weight:700;letter-spacing:-.02em}
+.callout span{font-size:1.25cqw;color:var(--grey-dark);margin-left:.4cqw}
+
+/* horizontal stacked bars (backlogs) */
+.bk{margin-top:2.4cqh;display:flex;flex-direction:column;gap:1.5cqh}
+.brow{display:flex;align-items:center;gap:1.2cqw}
+.blab{flex:0 0 21cqw;font-size:1.3cqw;font-weight:600;color:var(--black);text-align:right;line-height:1.2}
+.hbarinner{display:flex;height:2.7cqh;border-radius:4px;overflow:hidden;min-width:1px}
+.hseg{height:100%;width:calc(var(--v) * var(--hu,0.06cqw))}
+.hseg.h{background:var(--c-hyb)} .hseg.a{background:var(--c-ae)} .hseg.b{background:var(--c-bat)}
+.bnum{font-size:1.5cqw;font-weight:700;white-space:nowrap}
+.bnum small{font-weight:500;color:var(--grey-dark);font-size:1.0cqw;margin-left:.4cqw}
+
+/* issues table */
+.slide--table{padding-top:4.5cqh}
+.tbl{margin-top:1.4cqh;width:100%;border-collapse:collapse}
+.tbl th{text-align:left;font-size:1.0cqw;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--grey-dark);padding:0 1.2cqw .55cqh 0;border-bottom:2px solid var(--grey)}
+.tbl td{font-size:1.04cqw;line-height:1.28;color:var(--black);padding:.55cqh 1.2cqw .55cqh 0;border-bottom:1px solid var(--grey-light);vertical-align:top}
+.tbl td.c1{width:25%;font-weight:700} .tbl td.c2{width:42%;color:var(--grey-dark)} .tbl td.c3{width:33%}
+.tbl td.c3 b{color:var(--black)}
+.pchip{display:inline-block;font-size:.9cqw;font-weight:700;color:#fff;border-radius:5px;padding:.2cqh .55cqw;margin-right:.5cqw;vertical-align:1px}
+.p1{background:#C72223} .p2{background:#F76622} .p3{background:#86594E}
+
+/* mini follow-ups-created chart (slide 2) */
+.mini{margin-top:2.2cqh;display:flex;flex-direction:column;gap:.7cqh}
+.mini-h{font-size:1.3cqw;font-weight:700;color:#C72223}
+.mini-row{display:flex;align-items:flex-end;gap:1cqw;height:11cqh;padding-top:2.4cqh}
+.mb{width:3.4cqw;background:var(--grey);border-radius:3px 3px 0 0;height:calc(var(--v,0)*0.4cqh);position:relative;display:flex;justify-content:center;min-height:1px}
+.mb.last{background:#C72223}
+.mb .mbv{position:absolute;top:-2.1cqh;font-size:1.05cqw;font-weight:700;color:var(--grey-dark)}
+.mb.last .mbv{color:#C72223}
+.mini-x{font-size:1.05cqw;color:var(--grey-dark)}
+/* chill stacked done / scheduled */
+.seg.cd{background:var(--c-chl)} .seg.cs{background:var(--c-chl);opacity:.32}
+
+/* columns + panels */
+.cols{display:flex;gap:2.2cqw;margin-top:2.6cqh}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1.8cqh 2.2cqw;margin-top:2.4cqh}
+.cat-h{font-size:1.55cqw;font-weight:700;letter-spacing:-.01em;color:var(--accent,var(--orange));margin-bottom:.3cqh}
+.panel{flex:1;border-radius:1.4rem;padding:2.6cqh 2cqw;display:flex;flex-direction:column;gap:1.2cqh}
+.bg-white .panel{background:var(--bluish)} .bg-bluish .panel{background:#fff;box-shadow:0 4px 8px rgba(0,0,0,.02)}
+.panel-h{font-size:1.65cqw;font-weight:700;letter-spacing:-.01em}
+.panel-h.urgent{color:var(--accent,var(--orange))} .panel-h.cont{color:var(--grey-dark)}
+.list{list-style:none;display:flex;flex-direction:column;gap:1.2cqh}
+.list li{position:relative;padding-left:1.6cqw;font-size:1.4cqw;line-height:1.38;color:var(--black)}
+.list li::before{content:"";position:absolute;left:.2cqw;top:.64cqh;width:.62cqw;height:.62cqw;border-radius:50%;background:var(--accent,var(--orange))}
+.list.muted li::before{background:var(--grey)}
+.list li b{font-weight:700;color:var(--black)} .bg-dark .list li{color:#fff}
+
+/* key prio's */
+.kp{display:flex;flex-direction:column;gap:1.3cqh;margin-top:2.6cqh}
+.kp-row{display:flex;gap:1.8cqw;align-items:flex-start;border-top:1px solid rgba(255,255,255,.12);padding-top:1.3cqh}
+.kp-row:first-child{border-top:none;padding-top:0}
+.kp-team{flex:0 0 13cqw;font-size:1.75cqw;font-weight:700;color:var(--accent);letter-spacing:-.01em;padding-top:.15cqh}
+.kp-list{flex:1;list-style:none;display:flex;flex-direction:column;gap:.6cqh}
+.kp-list li{position:relative;padding-left:1.5cqw;font-size:1.42cqw;line-height:1.3;color:#fff}
+.kp-list li::before{content:"";position:absolute;left:.2cqw;top:.58cqh;width:.56cqw;height:.56cqw;border-radius:50%;background:var(--accent)}
+.kp-list li b{font-weight:700}
+
+/* appendix */
+.ap-tag{display:inline-block;font-size:1.25cqw;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#86594E}
+.dept-head{display:flex;align-items:baseline;gap:1.2cqw;margin-top:.8cqh;padding-left:1.3cqw;border-left:.45cqw solid var(--accent)}
+.dept-name{font-size:3.4cqw;font-weight:600;letter-spacing:-.025em;line-height:1}
+.dept-owners{font-size:1.35cqw;font-weight:600;color:var(--grey-dark)}
+
+/* controls + edit mode */
+.controls{position:fixed;bottom:2.2vh;left:50%;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:12px;background:rgba(8,20,18,.82);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.08);padding:8px 12px;border-radius:150px;opacity:.42;transition:opacity .25s}
+.controls:hover{opacity:1}
+.ctrl{width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,.08);color:#fff;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.ctrl:hover{background:var(--orange)}
+.dots{display:flex;gap:5px;align-items:center;padding:0 3px}
+.dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.28);cursor:pointer;border:none;padding:0;transition:.2s}
+.dot.is-on{background:var(--neon);width:18px;border-radius:4px}
+.counter{color:var(--grey);font-size:12px;font-weight:600;min-width:42px;text-align:center}
+.ctrl-div{width:1px;height:19px;background:rgba(255,255,255,.14)}
+.tool{background:rgba(255,255,255,.08);color:#fff;border:none;border-radius:150px;font-family:var(--font);font-weight:600;font-size:12px;padding:7px 13px;cursor:pointer;transition:background .15s}
+.tool:hover{background:var(--orange)}
+.seg.chl{background:var(--c-chl)}
+</style>
+</head>
+<body class="">
+
+
+<div class="stage" id="stage">
+
+  <!-- 1 · COVER -->
+  <section class="slide slide--cover bg-dark is-active">
+    <div class="cover-top"><span class="brand">Quatt<i>.</i></span><span class="deck-tag">Weekly all-hands · 15 min</span></div>
+    <div class="cover-mid">
+      <span class="kicker kicker--neon">Monday Kickoff</span>
+      <h1 class="deck-title">Last week’s score,<br>this week’s push</h1>
+      <p class="deck-date">Week of 8 June 2026</p>
+    </div>
+    <p class="foot-note">A 3-minute read if you can’t join live. Slides 1–10 are the meeting; the rest is per-team detail to read after. Goal: <b>200 installs / week</b>.</p>
+  </section>
+
+  <!-- 2 · FUNNEL (stacked, prev vs last) -->
+  <section class="slide bg-white">
+    <span class="wm">Quatt · Monday Kickoff</span>
+    <span class="slide-label">Last 6 weeks · non-Chill</span>
+    <h2 class="slide-h">Quote → signed → planned → installed</h2>
+    <p class="sub">Six weeks, <b>27 Apr → 7 Jun</b> (left → right); <b>last week in full colour</b>, earlier weeks faded. Non-Chill, stacked by product; weekly throughput. Installed folds in <b>follow-up visits</b>. Only last week is labelled.</p>
+    <div class="legend">
+      <span><i style="background:var(--c-hyb)"></i>Hybrid</span>
+      <span><i style="background:var(--c-ae)"></i>All-Electric</span>
+      <span><i style="background:var(--c-bat)"></i>Home battery</span>
+      <span><i style="background:var(--c-fu)"></i>Follow-up</span>
+    </div>
+    <div class="vbars multi" style="--u:0.044cqh">
+      <div class="vgrp">
+        <div class="sbar" style="opacity:.38"><i class="seg h" style="--v:168"></i><i class="seg a" style="--v:64"></i><i class="seg b" style="--v:58"></i></div>
+        <div class="sbar" style="opacity:.48"><i class="seg h" style="--v:280"></i><i class="seg a" style="--v:108"></i><i class="seg b" style="--v:92"></i></div>
+        <div class="sbar" style="opacity:.60"><i class="seg h" style="--v:213"></i><i class="seg a" style="--v:87"></i><i class="seg b" style="--v:92"></i></div>
+        <div class="sbar" style="opacity:.72"><i class="seg h" style="--v:254"></i><i class="seg a" style="--v:89"></i><i class="seg b" style="--v:168"></i></div>
+        <div class="sbar" style="opacity:.85"><i class="seg h" style="--v:204"></i><i class="seg a" style="--v:91"></i><i class="seg b" style="--v:114"></i></div>
+        <div class="sbar"><span class="bv">521</span><i class="seg h" style="--v:292"></i><i class="seg a" style="--v:124"></i><i class="seg b" style="--v:118"></i></div>
+      </div>
+      <div class="vgrp">
+        <div class="sbar" style="opacity:.38"><i class="seg h" style="--v:101"></i><i class="seg a" style="--v:33"></i><i class="seg b" style="--v:18"></i></div>
+        <div class="sbar" style="opacity:.48"><i class="seg h" style="--v:105"></i><i class="seg a" style="--v:27"></i><i class="seg b" style="--v:15"></i></div>
+        <div class="sbar" style="opacity:.60"><i class="seg h" style="--v:115"></i><i class="seg a" style="--v:40"></i><i class="seg b" style="--v:19"></i></div>
+        <div class="sbar" style="opacity:.72"><i class="seg h" style="--v:107"></i><i class="seg a" style="--v:40"></i><i class="seg b" style="--v:22"></i></div>
+        <div class="sbar" style="opacity:.85"><i class="seg h" style="--v:92"></i><i class="seg a" style="--v:25"></i><i class="seg b" style="--v:17"></i></div>
+        <div class="sbar"><span class="bv">181</span><i class="seg h" style="--v:125"></i><i class="seg a" style="--v:44"></i><i class="seg b" style="--v:15"></i></div>
+      </div>
+      <div class="vgrp">
+        <div class="sbar" style="opacity:.38"><i class="seg h" style="--v:95"></i><i class="seg a" style="--v:26"></i><i class="seg b" style="--v:20"></i></div>
+        <div class="sbar" style="opacity:.48"><i class="seg h" style="--v:102"></i><i class="seg a" style="--v:31"></i><i class="seg b" style="--v:16"></i></div>
+        <div class="sbar" style="opacity:.60"><i class="seg h" style="--v:78"></i><i class="seg a" style="--v:16"></i><i class="seg b" style="--v:18"></i></div>
+        <div class="sbar" style="opacity:.72"><i class="seg h" style="--v:130"></i><i class="seg a" style="--v:24"></i><i class="seg b" style="--v:21"></i></div>
+        <div class="sbar" style="opacity:.85"><i class="seg h" style="--v:85"></i><i class="seg a" style="--v:24"></i><i class="seg b" style="--v:16"></i></div>
+        <div class="sbar"><span class="bv">155</span><i class="seg h" style="--v:109"></i><i class="seg a" style="--v:31"></i><i class="seg b" style="--v:16"></i></div>
+      </div>
+      <div class="vgrp">
+        <div class="sbar" style="opacity:.38"><i class="seg h" style="--v:98"></i><i class="seg a" style="--v:11"></i><i class="seg b" style="--v:9"></i></div>
+        <div class="sbar" style="opacity:.48"><i class="seg h" style="--v:213"></i><i class="seg a" style="--v:52"></i><i class="seg b" style="--v:15"></i></div>
+        <div class="sbar" style="opacity:.60"><i class="seg h" style="--v:155"></i><i class="seg a" style="--v:26"></i><i class="seg b" style="--v:19"></i></div>
+        <div class="sbar" style="opacity:.72"><i class="seg h" style="--v:168"></i><i class="seg a" style="--v:45"></i><i class="seg b" style="--v:15"></i></div>
+        <div class="sbar" style="opacity:.85"><i class="seg h" style="--v:63"></i><i class="seg a" style="--v:9"></i><i class="seg b" style="--v:5"></i></div>
+        <div class="sbar"><span class="bv">258</span><i class="seg h" style="--v:210"></i><i class="seg a" style="--v:43"></i><i class="seg b" style="--v:8"></i></div>
+      </div>
+      <div class="vgrp">
+        <div class="sbar" style="opacity:.38"><i class="seg h" style="--v:35"></i><i class="seg a" style="--v:8"></i><i class="seg b" style="--v:4"></i><i class="seg fu" style="--v:5"></i></div>
+        <div class="sbar" style="opacity:.48"><i class="seg h" style="--v:93"></i><i class="seg a" style="--v:18"></i><i class="seg b" style="--v:2"></i><i class="seg fu" style="--v:4"></i></div>
+        <div class="sbar" style="opacity:.60"><i class="seg h" style="--v:77"></i><i class="seg a" style="--v:18"></i><i class="seg b" style="--v:5"></i><i class="seg fu" style="--v:2"></i></div>
+        <div class="sbar" style="opacity:.72"><i class="seg h" style="--v:88"></i><i class="seg a" style="--v:18"></i><i class="seg b" style="--v:5"></i><i class="seg fu" style="--v:9"></i></div>
+        <div class="sbar" style="opacity:.85"><i class="seg h" style="--v:92"></i><i class="seg a" style="--v:20"></i><i class="seg b" style="--v:4"></i><i class="seg fu" style="--v:6"></i></div>
+        <div class="sbar"><span class="bv bv2">129<small>121+8</small></span><i class="seg h" style="--v:90"></i><i class="seg a" style="--v:27"></i><i class="seg b" style="--v:4"></i><i class="seg fu" style="--v:8"></i></div>
+      </div>
+    </div>
+    <div class="xrow">
+      <span class="xcell">Quote sent</span>
+      <span class="xcell">Quote signed</span>
+      <span class="xcell">Plans sent</span>
+      <span class="xcell">Jobs planned <small>→ WPS20</small></span>
+      <span class="xcell">Installed <small>incl. follow-ups</small></span>
+    </div>
+    <div class="callouts">
+      <span class="callout"><b>129</b><span>install visits last wk — 121 new + 8 non-Chill follow-up · vs 150/wk new (June 200)</span></span>
+      <span class="callout"><b>130</b><span>Chill installs (tracked separately)</span></span>
+      <span class="callout"><b>258</b><span>jobs planned — back up from 76 the week before</span></span>
+    </div>
+    <div class="mini">
+      <span class="mini-h">⚠ Follow-up jobs created / week (installs not first-time-right) — rising as we scale</span>
+      <div class="mini-row">
+        <div class="mb" style="--v:2;opacity:.45"><span class="mbv">2</span></div>
+        <div class="mb" style="--v:10;opacity:.55"><span class="mbv">10</span></div>
+        <div class="mb" style="--v:12;opacity:.65"><span class="mbv">12</span></div>
+        <div class="mb" style="--v:12;opacity:.78"><span class="mbv">12</span></div>
+        <div class="mb" style="--v:16;opacity:.9"><span class="mbv">16</span></div>
+        <div class="mb last" style="--v:23"><span class="mbv">23</span></div>
+      </div>
+      <span class="mini-x">27 Apr → 7 Jun (non-Chill) · the rework behind our first-time-right problem</span>
+    </div>
+    <p class="src">Source: DWH per standup-queries.md. Non-Chill, Consumer Orders. Installed = completed Installation + <b>non-Chill</b> follow-up jobs (Chill follow-ups excluded). Only last week labelled; bundles double-count by ~1–2.</p>
+  </section>
+
+  <!-- 3 · OUTLOOK (future jobs planned) -->
+  <section class="slide bg-bluish">
+    <span class="wm">Quatt · Monday Kickoff</span>
+    <span class="slide-label">The week ahead · what’s booked</span>
+    <h2 class="slide-h">Jobs planned, by week (non-Chill)</h2>
+    <p class="sub"><b>This week (8 Jun, 182) and 15 Jun (173) are well-booked; it thins fast after.</b> Bar = scheduled incl. <b>non-Chill</b> follow-ups (grey); 1 Jun = last week, done. Filling gaps + late-June capacity is the main lever.</p>
+    <div class="legend">
+      <span><i style="background:var(--c-hyb)"></i>Hybrid</span>
+      <span><i style="background:var(--c-ae)"></i>All-Electric</span>
+      <span><i style="background:var(--c-bat)"></i>Home battery</span>
+      <span><i style="background:var(--c-fu)"></i>Follow-up</span>
+      <span style="color:#9aa0a0">▒ faded = done / current week</span>
+    </div>
+    <div class="vbars" style="--u:0.095cqh">
+      <div class="refline" style="bottom:calc(200 * 0.095cqh)"><span>200</span></div>
+      <div class="refline" style="bottom:calc(150 * 0.095cqh)"><span>150</span></div>
+      <div class="vgrp"><div class="sbar past"><span class="bv bv2">129<small>121+8</small></span><i class="seg h" style="--v:90"></i><i class="seg a" style="--v:27"></i><i class="seg b" style="--v:4"></i><i class="seg fu" style="--v:8"></i></div></div>
+      <div class="vgrp"><div class="sbar"><span class="bv bv2">175<small>154+21</small></span><i class="seg h" style="--v:100"></i><i class="seg a" style="--v:49"></i><i class="seg b" style="--v:5"></i><i class="seg fu" style="--v:21"></i></div></div>
+      <div class="vgrp"><div class="sbar"><span class="bv bv2">180<small>166+14</small></span><i class="seg h" style="--v:110"></i><i class="seg a" style="--v:43"></i><i class="seg b" style="--v:13"></i><i class="seg fu" style="--v:14"></i></div></div>
+      <div class="vgrp"><div class="sbar"><span class="bv bv2">144<small>136+8</small></span><i class="seg h" style="--v:59"></i><i class="seg a" style="--v:32"></i><i class="seg b" style="--v:45"></i><i class="seg fu" style="--v:8"></i></div></div>
+      <div class="vgrp"><div class="sbar"><span class="bv bv2">66<small>65+1</small></span><i class="seg h" style="--v:42"></i><i class="seg a" style="--v:18"></i><i class="seg b" style="--v:5"></i><i class="seg fu" style="--v:1"></i></div></div>
+      <div class="vgrp"><div class="sbar"><span class="bv bv2">64<small>62+2</small></span><i class="seg h" style="--v:36"></i><i class="seg a" style="--v:18"></i><i class="seg b" style="--v:8"></i><i class="seg fu" style="--v:2"></i></div></div>
+      <div class="vgrp"><div class="sbar"><span class="bv">56</span><i class="seg h" style="--v:41"></i><i class="seg a" style="--v:9"></i><i class="seg b" style="--v:6"></i></div></div>
+      <div class="vgrp"><div class="sbar"><span class="bv">24</span><i class="seg h" style="--v:16"></i><i class="seg a" style="--v:4"></i><i class="seg b" style="--v:4"></i></div></div>
+    </div>
+    <div class="xrow">
+      <span class="xcell">1 Jun<small>done</small></span>
+      <span class="xcell">8 Jun<small>this wk</small></span>
+      <span class="xcell">15 Jun</span>
+      <span class="xcell">22 Jun</span>
+      <span class="xcell">29 Jun</span>
+      <span class="xcell">6 Jul</span>
+      <span class="xcell">13 Jul</span>
+      <span class="xcell">20 Jul</span>
+    </div>
+    <p class="src">Source: DWH per standup-queries.md (install outlook). Scheduled Installation + <b>non-Chill</b> follow-up jobs by week (Chill follow-ups excluded). Far weeks fill in as deals are planned.</p>
+  </section>
+
+  <!-- 4 · CHILL -->
+  <section class="slide bg-white">
+    <span class="wm">Quatt · Monday Kickoff</span>
+    <span class="slide-label" style="color:#5A979E">Last week · Chill (cooling)</span>
+    <h2 class="slide-h">Chill at peak — completion is the gap</h2>
+    <p class="sub">Chill installs / week: <b>solid = completed, faded = scheduled / not finished</b>. The pre-order batch peaked; booked work tapers after mid-June (far weeks still fill in).</p>
+    <div class="vbars" style="--u:0.135cqh">
+      <div class="vgrp"><div class="sbar"><span class="bv">23</span><i class="seg cd" style="--v:20"></i><i class="seg cs" style="--v:3"></i></div></div>
+      <div class="vgrp"><div class="sbar"><span class="bv">60</span><i class="seg cd" style="--v:53"></i><i class="seg cs" style="--v:7"></i></div></div>
+      <div class="vgrp"><div class="sbar"><span class="bv">77</span><i class="seg cd" style="--v:67"></i><i class="seg cs" style="--v:10"></i></div></div>
+      <div class="vgrp"><div class="sbar"><span class="bv">177</span><i class="seg cd" style="--v:155"></i><i class="seg cs" style="--v:22"></i></div></div>
+      <div class="vgrp"><div class="sbar"><span class="bv">162</span><i class="seg cd" style="--v:136"></i><i class="seg cs" style="--v:26"></i></div></div>
+      <div class="vgrp"><div class="sbar"><span class="bv bv2">175<small>130 done</small></span><i class="seg cd" style="--v:130"></i><i class="seg cs" style="--v:45"></i></div></div>
+      <div class="vgrp"><div class="sbar"><span class="bv">165</span><i class="seg cs" style="--v:165"></i></div></div>
+      <div class="vgrp"><div class="sbar"><span class="bv">163</span><i class="seg cs" style="--v:163"></i></div></div>
+      <div class="vgrp"><div class="sbar"><span class="bv">37</span><i class="seg cs" style="--v:37"></i></div></div>
+      <div class="vgrp"><div class="sbar"><span class="bv">18</span><i class="seg cs" style="--v:18"></i></div></div>
+      <div class="vgrp"><div class="sbar"><span class="bv">7</span><i class="seg cs" style="--v:7"></i></div></div>
+      <div class="vgrp"><div class="sbar"><span class="bv">10</span><i class="seg cs" style="--v:10"></i></div></div>
+    </div>
+    <div class="xrow">
+      <span class="xcell">27 Apr</span><span class="xcell">4 May</span><span class="xcell">11 May</span><span class="xcell">18 May</span><span class="xcell">25 May</span><span class="xcell">1 Jun<small>done</small></span><span class="xcell">8 Jun<small>now</small></span><span class="xcell">15 Jun</span><span class="xcell">22 Jun</span><span class="xcell">29 Jun</span><span class="xcell">6 Jul</span><span class="xcell">13 Jul</span>
+    </div>
+    <div class="callouts">
+      <span class="callout"><b>130</b><span>Chill installs last wk (of 175 scheduled)</span></span>
+      <span class="callout"><b>~75%</b><span>Chill completion — below the ~90% goal</span></span>
+      <span class="callout"><b>79</b><span>Chill signed last wk (demand)</span></span>
+    </div>
+    <p class="src">Source: DWH per standup-queries.md. Installation jobs, PRODUCT_FAMILY = Chill. Completion = completed ÷ reached-outcome. Chill tracked separately from the non-Chill funnel + covenant target.</p>
+  </section>
+
+  <!-- 5 · B2B (installer channel) -->
+  <section class="slide bg-bluish">
+    <span class="wm">Quatt · Monday Kickoff</span>
+    <span class="slide-label" style="color:#1A7A6B">Last 8 weeks · B2B</span>
+    <h2 class="slide-h">B2B orders — the installer channel</h2>
+    <p class="sub">Partners ordering Quatt systems to install themselves — our business-to-business channel. <b>Small but growing: ~12/week in April → low-20s now</b>, and broadening from hybrid-only into All-Electric and Chill. Stacked by product; last full week (1 Jun) in full colour.</p>
+    <div class="legend">
+      <span><i style="background:var(--c-hyb)"></i>Hybrid</span>
+      <span><i style="background:var(--c-ae)"></i>All-Electric</span>
+      <span><i style="background:var(--c-chl)"></i>Chill</span>
+    </div>
+    <div class="vbars" style="--u:0.72cqh">
+      <div class="vgrp"><div class="sbar" style="opacity:.45"><span class="bv">13</span><i class="seg h" style="--v:13"></i></div></div>
+      <div class="vgrp"><div class="sbar" style="opacity:.52"><span class="bv">11</span><i class="seg h" style="--v:11"></i></div></div>
+      <div class="vgrp"><div class="sbar" style="opacity:.60"><span class="bv">15</span><i class="seg h" style="--v:12"></i><i class="seg a" style="--v:3"></i></div></div>
+      <div class="vgrp"><div class="sbar" style="opacity:.70"><span class="bv">27</span><i class="seg h" style="--v:20"></i><i class="seg a" style="--v:6"></i><i class="seg chl" style="--v:1"></i></div></div>
+      <div class="vgrp"><div class="sbar" style="opacity:.80"><span class="bv">20</span><i class="seg h" style="--v:16"></i><i class="seg a" style="--v:2"></i><i class="seg chl" style="--v:2"></i></div></div>
+      <div class="vgrp"><div class="sbar" style="opacity:.88"><span class="bv">24</span><i class="seg h" style="--v:19"></i><i class="seg chl" style="--v:5"></i></div></div>
+      <div class="vgrp"><div class="sbar" style="opacity:.94"><span class="bv">19</span><i class="seg h" style="--v:9"></i><i class="seg a" style="--v:5"></i><i class="seg chl" style="--v:5"></i></div></div>
+      <div class="vgrp"><div class="sbar"><span class="bv">22</span><i class="seg h" style="--v:13"></i><i class="seg a" style="--v:5"></i><i class="seg chl" style="--v:4"></i></div></div>
+    </div>
+    <div class="xrow">
+      <span class="xcell">13 Apr</span><span class="xcell">20 Apr</span><span class="xcell">27 Apr</span><span class="xcell">4 May</span><span class="xcell">11 May</span><span class="xcell">18 May</span><span class="xcell">25 May</span><span class="xcell">1 Jun<small>last wk</small></span>
+    </div>
+    <div class="callouts">
+      <span class="callout"><b>22</b><span>B2B orders last week (installer channel)</span></span>
+      <span class="callout"><b>~9</b><span>of them All-Electric + Chill — up from hybrid-only in April</span></span>
+      <span class="callout"><b>177</b><span>B2B installs scheduled (last 8 wks)</span></span>
+    </div>
+    <p class="src">Source: DWH DIM_DEALS, DEAL_PIPELINE = ‘Installer Channel’. Orders = deals created per week by SELECTED_PRODUCT (bundles double-count by ~1–2). Week labels are Mondays; 1 Jun is the last complete week.</p>
+  </section>
+
+  <!-- 5 · BACKLOGS (chart) -->
+  <section class="slide bg-white">
+    <span class="wm">Quatt · Monday Kickoff</span>
+    <span class="slide-label">Last week · backlogs</span>
+    <h2 class="slide-h">Signed, waiting to get installed</h2>
+    <div class="legend">
+      <span><i style="background:var(--c-hyb)"></i>Hybrid</span>
+      <span><i style="background:var(--c-ae)"></i>All-Electric</span>
+      <span><i style="background:var(--c-bat)"></i>Home battery</span>
+    </div>
+    <div class="bk" style="--hu:0.058cqw">
+      <div class="brow"><span class="blab">Signed, awaiting work-prep (Q2S–WPS13Q)</span><div class="hbarinner"><i class="hseg h" style="--v:527"></i><i class="hseg a" style="--v:137"></i><i class="hseg b" style="--v:104"></i></div><span class="bnum">755 <small>527·137·104</small></span></div>
+      <div class="brow"><span class="blab">Ready to schedule (WPS13)</span><div class="hbarinner"><i class="hseg h" style="--v:67"></i><i class="hseg a" style="--v:39"></i><i class="hseg b" style="--v:24"></i></div><span class="bnum">127 <small>67·39·24</small></span></div>
+      <div class="brow"><span class="blab">On hold — waiting on customer (WPS13a)</span><div class="hbarinner"><i class="hseg h" style="--v:86"></i><i class="hseg a" style="--v:9"></i><i class="hseg b" style="--v:14"></i></div><span class="bnum">109 <small>86·9·14</small></span></div>
+      <div class="brow"><span class="blab">In work-prep (Plan0)</span><div class="hbarinner"><i class="hseg h" style="--v:49"></i><i class="hseg a" style="--v:45"></i><i class="hseg b" style="--v:2"></i></div><span class="bnum">93 <small>49·45·2</small></span></div>
+      <div class="brow"><span class="blab">Follow-up jobs (WPS13F)</span><div class="hbarinner"><i class="hseg h" style="--v:35"></i><i class="hseg a" style="--v:3"></i><i class="hseg b" style="--v:2"></i></div><span class="bnum">40 <small>→ 0 by end June</small></span></div>
+    </div>
+    <p class="sub" style="margin-top:2.2cqh">Plan-zero “mountain” is cleared. The <b>follow-up backlog must hit 0 by end of June</b> — all teams. Work-prep is short on <b>simple</b> deals: most of Plan0 is complex All-E / battery.</p>
+    <p class="src">Source: DWH per standup-queries.md. Snapshot today, non-Chill, Consumer Orders. H·A·B = product occurrences (bundles double-count).</p>
+  </section>
+
+  <!-- 5 · ISSUES TABLE -->
+  <section class="slide slide--table bg-bluish">
+    <span class="wm">Quatt · Monday Kickoff</span>
+    <span class="slide-label">Last week · what’s slowing the ramp</span>
+    <h2 class="slide-h">Top blockers, prioritised</h2>
+    <table class="tbl">
+      <thead><tr><th style="width:25%">Issue</th><th style="width:42%">Context</th><th style="width:33%">What we’ll do</th></tr></thead>
+      <tbody>
+        <tr><td class="c1"><span class="pchip p1">P1</span>June is back-loaded</td><td class="c2">8 &amp; 15 Jun booked, but it thins fast after; capacity won’t catch up on its own. Main lever = add capacity in the last weeks of June.</td><td class="c3"><b>Ops:</b> +1 Chill freelance couple; pull Roke off All-E in the last full week (Quatt installers do longer days).</td></tr>
+        <tr><td class="c1"><span class="pchip p1">P1</span>Fill the gaps</td><td class="c2">Open slots don’t match the deals we have (postcode + duration). Jackie/Luca filling 8 Jun onward chronologically.</td><td class="c3"><b>BT&amp;D:</b> automate gap↔funnel matching (postcode + duration) so teams fill slots fast.</td></tr>
+        <tr><td class="c1"><span class="pchip p1">P1</span>Follow-up backlog → 0</td><td class="c2">Follow-up jobs are the easiest way to fill near-term slots; target is zero by end of June.</td><td class="c3"><b>All teams:</b> Unlock follow-ups; clear the whole backlog by end June.</td></tr>
+        <tr><td class="c1"><span class="pchip p1">P1</span>Commissioning stability</td><td class="c2">A back-end release broke the installer app version — commissioning stuck from ~4pm Wed; Bas fixed it remotely till 8:15.</td><td class="c3"><b>Eng:</b> root-cause back-end/app compatibility; gate releases.</td></tr>
+        <tr><td class="c1"><span class="pchip p1">P1</span>First-time-right too low</td><td class="c2">Completion slid <b>96% → 84%</b> over 6 weeks (Chill ~75%) as we scaled — Roke pushed to 2/day + prep gaps mean more installs don’t finish first time; each miss spawns a follow-up.</td><td class="c3"><b>Ops+Eng:</b> compile the full list of failure causes, fix 1-by-1; new FTR system flags misses live. Target <b>90–95%</b>.</td></tr>
+        <tr><td class="c1"><span class="pchip p2">P2</span>Too few short jobs</td><td class="c2">We have very little genuinely short work to fill gaps — the real capacity drag.</td><td class="c3"><b>Sales/Ops:</b> prioritise simple deals — hybrid singles &amp; 3.8kWh batteries (Jorge’s list).</td></tr>
+        <tr><td class="c1"><span class="pchip p2">P2</span>Work-prep skill bottleneck</td><td class="c2">Only 3 WPS can process complex All-E / battery; plan rejections ran +50% last week.</td><td class="c3"><b>Ops:</b> train the rest of WP on All-E + battery (Alejandro’s urgent priority).</td></tr>
+        <tr><td class="c1"><span class="pchip p2">P2</span>HV sales capacity</td><td class="c2">Too few home-visit reps → &gt;15-day waits, reps drive &gt;50% of hours, conversion drops past day 10. One lever, triple win.</td><td class="c3"><b>Sales:</b> onboard the 2 new HVRs; density cuts driving <i>and</i> lifts conversion.</td></tr>
+        <tr><td class="c1"><span class="pchip p2">P2</span>Self-serve conversion</td><td class="c2">~8 configurator orders/wk; first page hides the monthly price — 90%+ drop there.</td><td class="c3"><b>Sales+Mktg:</b> online-order discount + chatbot; surface monthly payment.</td></tr>
+        <tr><td class="c1"><span class="pchip p2">P2</span>Chill installers 2→3/day</td><td class="c2">The Chill freelance fleet (new to our methods) runs ~2/day — Chill, not hybrid/all-E.</td><td class="c3"><b>Ops:</b> coach the fleet + Electra training; simplify Chill commissioning.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 6 · ALSO WORTH KNOWING -->
+  <section class="slide center bg-white">
+    <span class="wm">Quatt · Monday Kickoff</span>
+    <span class="slide-label">Last week · beyond the numbers</span>
+    <h2 class="slide-h">Around the company</h2>
+    <div class="grid2">
+      <div class="panel" style="--accent:#F76622">
+        <div class="cat-h">Commercial</div>
+        <ul class="list">
+          <li><b>Record week — ~€1.5M signed</b> (&gt;€6M/month run-rate); strong All-E upgrades, Chill attach 20–25%.</li>
+          <li><b>Marketing re-anchored to total margin</b> (not cheap-lead volume); first financing lead in — defaulting ads &amp; web to monthly payments.</li>
+        </ul>
+      </div>
+      <div class="panel" style="--accent:#5A979E">
+        <div class="cat-h">Planning &amp; process</div>
+        <ul class="list">
+          <li><b>S&amp;OP</b> — this week’s WBR discusssed the&nbsp;<b>2026 monthly plan per product</b> + is close to sign off on the long-term purchasing-capacity outlook (install volumes).</li>
+          <li><b>Rhythm</b> — daily 150/200 standups + this weekly Kickoff are now the default.</li>
+        </ul>
+      </div>
+      <div class="panel" style="--accent:#1A7A6B">
+        <div class="cat-h">People</div>
+        <ul class="list">
+          <li><b>First employee survey (eNPS)</b> is out — please fill it in; it sets our people baseline.</li>
+          <li><b>New Sales-team comp model</b> — base pay with performance on top, rolling out this week (Sales only).</li>
+        </ul>
+      </div>
+      <div class="panel" style="--accent:#AD7D68">
+        <div class="cat-h">Product &amp; tech</div>
+        <ul class="list">
+          <li><b>“Rose” AI voice agent</b> soon handling inbound calls (empathy way up over 3 months) - exploring offering appointment slots on the phone.</li>
+          <li><b>Gap-matcher built</b> — Line-item planning tool surfaces which deals fit each open slot.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 · PRODUCT & ENGINEERING -->
+  <section class="slide bg-bluish" style="--accent:#39636B">
+    <span class="wm">Quatt · Monday Kickoff</span>
+    <span class="slide-label" style="color:#39636B">This week · Product &amp; Engineering</span>
+    <div class="dept-head"><span class="dept-name">Product &amp; Engineering</span><span class="dept-owners">Gustavo Juárez</span></div>
+    <p class="sub">Our <b>4 June software release</b> went out across the whole system — the in-home controller, the app and the cloud (<b>118 fixes &amp; features</b>). Two themes this release: <b>easier installs</b> and <b>updates that happen by themselves</b>. <span style="color:#9aa0a0">CiC 4.7 · Cloud 2.39 · App 1.57 · ODU 2.1</span></p>
+    <div class="cols">
+      <div class="panel"><h3 class="panel-h" style="color:#39636B">What just shipped</h3><ul class="list">
+        <li><b>Heat pumps now update over the air.</b> Outdoor units can be updated remotely — no engineer visit. This release is what switches it on.</li>
+        <li><b>All-Electric installs are faster &amp; clearer.</b> Pre-heating cuts the waiting time, and the installer now sees live readings and plain-language reasons when a step fails.</li>
+        <li><b>Fewer Chill support calls.</b> Fixed units switching on by themselves and showing “offline” while they were actually online.</li>
+        <li><b>Smarter All-Electric homes.</b> The heat battery now charges when power is free or negatively priced; devices show up by serial number instead of a code.</li>
+      </ul></div>
+      <div class="panel"><h3 class="panel-h" style="color:#39636B">In flight — incl. hardware</h3><ul class="list">
+        <li><b>Chill water tank.</b> Removing the hose from the tank to stop a capillary (siphoning) effect.</li>
+        <li><b>Front panel.</b> Resolving a compliance issue.</li>
+        <li><b>Heat-pump cost-down.</b> Reopening the work to make the unit cheaper to build.</li>
+        <li><b>Opening up to partners.</b> Letting certified partner installers commission our systems — the All-Electric “B2B” wave.</li>
+      </ul></div>
+    </div>
+    <p class="src">Source: official Quatt Ecosystem Release notes — 4 June 2026, the single source of truth for what shipped. Hardware items are current work-in-progress from engineering.</p>
+  </section>
+
+  <!-- 8 · THE ONE THING -->
+  <section class="slide center bg-dark">
+    <span class="kicker kicker--neon">The one thing</span>
+    <p class="statement">We make June in the next <span class="hl-neon">3 weeks</span>. Clear the follow-ups, fill every slot, add capacity — and spend like every euro is a heat pump in another home.</p>
+    <p class="foot-note">Standup tomorrow, <b>09:00</b>. Let’s accelerate the energy transition.</p>
+  </section>
+
+  <!-- 9 · APPENDIX DIVIDER -->
+  <section class="slide center bg-bluish">
+    <span class="ap-tag">Appendix · read after</span>
+    <h2 class="slide-h">Team detail — urgent &amp; continuing</h2>
+    <p class="lead">The next slides are the full per-team picture for reference — <b>not presented live</b>. Each team: what’s urgent this week, and the longer-term work continuing underneath.</p>
+  </section>
+
+  <!-- 10 · SALES -->
+  <section class="slide center bg-white" style="--accent:#F76622">
+    <span class="wm">Appendix · team detail</span>
+    <span class="slide-label">Sales</span>
+    <div class="dept-head"><span class="dept-name">Sales</span><span class="dept-owners">Jorge · Dennis</span></div>
+    <div class="cols">
+      <div class="panel"><h3 class="panel-h urgent">Urgent this week</h3><ul class="list">
+        <li><b>Cooling configurator first.</b> All dev resource to the Chill configurator for sunny-weather readiness (over the battery flow).</li>
+        <li><b>Fix cooling lead-routing</b> — the “chill upgrade” deal name traps leads in UQL2 (Andreas / Tom).</li>
+        <li><b>HV capacity.</b> Onboard the 2 new reps; level-load visits (70 → 50–55 min) to lift count.</li>
+        <li><b>Price-rise lock-in</b> — let customers with appointments lock current rates; default to monthly payments.</li>
+      </ul></div>
+      <div class="panel"><h3 class="panel-h cont">Continuing</h3><ul class="list muted">
+        <li>Prove the cooling → heat-pump wedge; sell the full system to Chill-only callers.</li>
+        <li>Drain the Plan-0A / stale-deal backlog (chase the ~70 ready deals).</li>
+        <li>Test hybrid installs with partner installers through end June.</li>
+        <li>“Rose” AI voice agent → phone-based slot booking.</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <!-- 11 · MARKETING -->
+  <section class="slide center bg-bluish" style="--accent:#AD7D68">
+    <span class="wm">Appendix · team detail</span>
+    <span class="slide-label">Marketing</span>
+    <div class="dept-head"><span class="dept-name">Marketing</span><span class="dept-owners">Age</span></div>
+    <div class="cols">
+      <div class="panel"><h3 class="panel-h urgent">Urgent this week</h3><ul class="list">
+        <li><b>Shift spend to margin.</b> Ramp All-Electric (~€230/sale) + battery; relaunch PowerUp Bundle 2.0.</li>
+        <li><b>Online-order discount</b> live; surface monthly price on the configurator’s first page.</li>
+        <li><b>Re-email</b> everyone who got a battery quote.</li>
+      </ul></div>
+      <div class="panel"><h3 class="panel-h cont">Continuing</h3><ul class="list muted">
+        <li>Standardise marketing attribution (one spend-to-product method).</li>
+        <li>Counter the summer dip — don’t coast; create urgency earlier with Chill + battery.</li>
+        <li>PMax all-season split; chatbot on the configurator.</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <!-- 12 · OPS -->
+  <section class="slide center bg-white" style="--accent:#39636B">
+    <span class="wm">Appendix · team detail</span>
+    <span class="slide-label">Operations</span>
+    <div class="dept-head"><span class="dept-name">Operations</span><span class="dept-owners">Bas · Mirrin · Jackie · Alejandro · Sukhada</span></div>
+    <div class="cols">
+      <div class="panel"><h3 class="panel-h urgent">Urgent this week</h3><ul class="list">
+        <li><b>Capacity for late June.</b> +1 Chill couple; pull Roke off All-E in the last full week; longer Quatt days.</li>
+        <li><b>Fill gaps + clear follow-ups to 0</b> by end June; unlock ISM follow-up jobs.</li>
+        <li><b>Train work-prep</b> on All-E + battery (only 3 qualified today); cut the +50% plan-rejection rate.</li>
+      </ul></div>
+      <div class="panel"><h3 class="panel-h cont">Continuing</h3><ul class="list muted">
+        <li>Self-reschedule automation (~2 weeks out).</li>
+        <li>Renovation / relocation scaling plan (Bob); external-installer SLA.</li>
+        <li>Fix Chill freelancer completion-accuracy data.</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <!-- 13 · ENGINEERING -->
+  <section class="slide center bg-bluish" style="--accent:#5A979E">
+    <span class="wm">Appendix · team detail</span>
+    <span class="slide-label">Engineering &amp; Product</span>
+    <div class="dept-head"><span class="dept-name">Engineering</span><span class="dept-owners">Gustavo</span></div>
+    <div class="cols">
+      <div class="panel"><h3 class="panel-h urgent">Urgent this week</h3><ul class="list">
+        <li><b>Root-cause the commissioning outage</b> — back-end/app version compatibility; never block the field again.</li>
+        <li><b>Sprint priority = whatever blocks growth most</b> — now Chill → All-Electric commissioning + Chill stability.</li>
+      </ul></div>
+      <div class="panel"><h3 class="panel-h cont">Continuing</h3><ul class="list muted">
+        <li>Infra refactor + cloud-cost reduction over new features.</li>
+        <li>Only product work that improves installability / fit stays a priority.</li>
+        <li>QuattOS — more revenue per person.</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <!-- 14 · BT&D -->
+  <section class="slide center bg-white" style="--accent:#1A7A6B">
+    <span class="wm">Appendix · team detail</span>
+    <span class="slide-label">BT&amp;D · Business Technology &amp; Development</span>
+    <div class="dept-head"><span class="dept-name">BT&amp;D</span><span class="dept-owners">Fabio</span></div>
+    <div class="cols">
+      <div class="panel"><h3 class="panel-h urgent">Urgent this week</h3><ul class="list">
+        <li><b>Gap-matcher (built).</b> HubSpot tool reading deal line items surfaces which deals fit each open slot — roll out to Jackie’s planners + fix the stale-duration data (SKU fallback).</li>
+        <li><b>Ship “My Items”</b> to installers (canary first); wire the interim home-battery job backend.</li>
+      </ul></div>
+      <div class="panel"><h3 class="panel-h cont">Continuing</h3><ul class="list muted">
+        <li><b>“Pipeline 2.0” backbone</b> — deal merge/split, HubSpot→NetSuite pricing, VAT-safe bundle discounts. A top scalability blocker; needs a named owner.</li>
+        <li>Dynamic job-duration (same-team coefficient) so the optimiser can be trusted to split jobs.</li>
+        <li>QC photos → Snowflake; reopened-install process; API-first dashboards for Ops.</li>
+      </ul></div>
+    </div>
+  </section>
+
+</div>
+
+<div class="controls" id="controls">
+  <button class="ctrl" id="prevBtn" aria-label="Previous slide">‹</button>
+  <div class="dots" id="dots"></div>
+  <button class="ctrl" id="nextBtn" aria-label="Next slide">›</button>
+  <span class="counter" id="counter">1 / 16</span>
+  <span class="ctrl-div"></span>
+  <button class="tool" id="fsBtn">Fullscreen</button>
+</div>
+
+<script>
+(function(){
+  var slides=Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var n=slides.length, current=0;
+  var dotsWrap=document.getElementById('dots'), counter=document.getElementById('counter');
+  slides.forEach(function(_,i){
+    var d=document.createElement('button'); d.className='dot'; d.setAttribute('aria-label','Go to slide '+(i+1));
+    d.addEventListener('click',function(){ show(i); });
+    dotsWrap.appendChild(d);
+  });
+  var dots=Array.prototype.slice.call(dotsWrap.children);
+  function show(i){
+    current=Math.max(0,Math.min(n-1,i));
+    slides.forEach(function(s,idx){ s.classList.toggle('is-active', idx===current); });
+    dots.forEach(function(d,idx){ d.classList.toggle('is-on', idx===current); });
+    if(counter) counter.textContent=(current+1)+' / '+n;
+  }
+  function next(){ show(current+1); } function prev(){ show(current-1); }
+  document.getElementById('nextBtn').addEventListener('click',next);
+  document.getElementById('prevBtn').addEventListener('click',prev);
+  document.getElementById('fsBtn').addEventListener('click',function(){
+    if(document.fullscreenElement){ document.exitFullscreen(); }
+    else if(document.documentElement.requestFullscreen){ document.documentElement.requestFullscreen().catch(function(){}); }
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key==='f'||e.key==='F'){ e.preventDefault(); document.getElementById('fsBtn').click(); return; }
+    switch(e.key){
+      case 'ArrowRight': case 'PageDown': case ' ': case 'Spacebar': e.preventDefault(); next(); break;
+      case 'ArrowLeft': case 'PageUp': e.preventDefault(); prev(); break;
+      case 'Home': e.preventDefault(); show(0); break;
+      case 'End': e.preventDefault(); show(n-1); break;
+    }
+  });
+  show(0);
+})();
+</script>
+
+
+</body></html>
