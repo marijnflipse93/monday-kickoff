@@ -1,0 +1,1 @@
+# Deck comments\n\nEach file here is one comment from the Monday Kickoff deck (via the /api/comment Pages Function).\nFields: ts, email (verified @quatt.io login), name, slide, label, text, page.\n
